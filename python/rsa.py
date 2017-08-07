@@ -58,7 +58,7 @@ def _compute_fold(epoch, targets, train, test, metric_fx=correlation,
     # make sure we don't have tuple as labels but strings or integers
     # to avoid possible bug in scikit-learn
     for t in targets:
-        assert (isinstance(p, (str, int)))
+        assert (isinstance(t, (str, int)))
 
     # preallocate array
     unique_targets = np.unique(targets)
