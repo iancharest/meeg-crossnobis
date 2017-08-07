@@ -125,7 +125,8 @@ def compute_temporal_rdm(epoch, targets, metric_fx=correlation,
     metric_fx : function(x, y, train_targets, test_targets)
         any function that returns a scalar given two arrays.
         This condition must hold: metric_fx(x, y) == metric_fx(y, x)
-    cv : sklearn cross-validator
+    cv : instance of sklearn cross-validator
+        (default StratifiedShuffleSplit(n_splits=10, test_size=0.5)
     cv_multi_normalize : str | None (default None)
         Multivariate normalize the trials before computing the distance between
         pairwise conditions.
