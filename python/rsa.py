@@ -32,7 +32,7 @@ def _compute_fold(epoch, targets, train, test, metric_fx=correlation,
         indices of the training data
     test : array-like of int
         indices of the testing data
-    metric_fx : function(x, y, train_targets, test_targets)
+    metric_fx : function(x, y, targets_train, targets_test)
         any function that returns a scalar given two arrays.
         This condition must hold: metric_fx(x, y) == metric_fx(y, x)
     cv_multi_normalize : str | None (default None)
@@ -46,7 +46,6 @@ def _compute_fold(epoch, targets, train, test, metric_fx=correlation,
     Returns
     -------
     rdms: array (n_pairwise_targets, n_times, n_times)
-
     """
 
     targets = np.asarray(targets)
@@ -58,7 +57,7 @@ def _compute_fold(epoch, targets, train, test, metric_fx=correlation,
 
     # make sure we don't have tuple as labels but strings or integers
     # to avoid possible bug in scikit-learn
-    for p in targets:
+    for t in targets:
         assert (isinstance(p, (str, int)))
 
     # preallocate array
@@ -69,11 +68,11 @@ def _compute_fold(epoch, targets, train, test, metric_fx=correlation,
     rdms = np.zeros((n_triu, n_times, n_times))
     # get training and testing data
     epoch_train = epoch.copy()[train]
-    train_targets = targets[train]
-    assert(len(epoch_train) == len(train_targets))
+    targets_train = targets[train]
+    assert(len(epoch_train) == len(targets_train))
     epoch_test = epoch.copy()[test]
-    test_targets = targets[test]
-    assert(len(epoch_test) == len(test_targets))
+    targets_test = targets[test]
+    assert(len(epoch_test) == len(targets_test))
 
     if cv_multi_normalize:
         tmax = 0. if cv_multi_normalize == 'baseline' else None
@@ -92,11 +91,11 @@ def _compute_fold(epoch, targets, train, test, metric_fx=correlation,
     # compute pairwise metric
     idx = 0
     for i, target1 in enumerate(unique_targets):
-        mask_target1 = np.where([target1 == l for l in train_targets])[0]
+        mask_target1 = np.where([t == target1 for t in targets_train])[0]
         assert (len(mask_target1) > 0)
         epo_data_target1 = epo_data_train[mask_target1]
         for j, target2 in enumerate(unique_targets[i:]):
-            mask_target2 = np.where([target2 == l for l in test_targets])[0]
+            mask_target2 = np.where([t == target2 for t in targets_test])[0]
             assert (len(mask_target2) > 0)
             epo_data_target2 = epo_data_test[mask_target2]
             # now loop through time
@@ -106,7 +105,7 @@ def _compute_fold(epoch, targets, train, test, metric_fx=correlation,
                     rdms[idx, t1, t2] = \
                         metric_fx(epo_data_target1[..., t1][None, :],
                                   epo_data_target2[..., t2][None, :],
-                                  train_targets, test_targets)
+                                  targets_train, targets_test)
                     rdms[idx, t2, t1] = rdms[idx, t1, t2]
             idx += 1
     return rdms
