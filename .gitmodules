@@ -1,0 +1,3 @@
+[submodule "python/meegnobis"]
+	path = python/meegnobis
+	url = https://github.com/mvdoc/meegnobis.git
